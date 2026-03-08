@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生日快乐！🎂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* 初始生日快乐页面 */
+        .birthday-title {
+            font-size: 6rem;
+            text-align: center;
+            animation: bounce 2s infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 礼物盒容器 */
+        .gift-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+            display: none;
+        }
+
+        .gift-box {
+            width: 150px;
+            height: 150px;
+            background: #e74c3c;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s ease, background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .gift-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .gift-box::after {
+            content: "";
+            position: absolute;
+            top: 20%;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: #c0392b;
+        }
+
+        .gift-box::before {
+            content: "";
+            position: absolute;
+            left: 20%;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background: #c0392b;
+        }
+
+        /* 提示文本样式 */
+        .prompt-text {
+            font-size: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            display: none;
+        }
+
+        /* 结果弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            font-size: 2rem;
+            text-align: center;
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .close-btn {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* 最终祝福页面 */
+        .final-message {
+            font-size: 3rem;
+            text-align: center;
+            padding: 2rem;
+            display: none;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 初始生日快乐标题 -->
+    <div class="birthday-title">生日快乐！🎂</div>
+
+    <!-- 提示挑选礼物文本 -->
+    <div class="prompt-text">请挑选你的礼物吧～</div>
+
+    <!-- 礼物盒容器 -->
+    <div class="gift-container" id="giftContainer">
+        <!-- 9个礼物盒，通过JS动态赋值内容 -->
+    </div>
+
+    <!-- 弹窗（显示礼物/空盒提示） -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <p id="modalText"></p>
+            <button class="close-btn" onclick="closeModal()">确定</button>
+        </div>
+    </div>
+
+    <!-- 最终祝福 -->
+    <div class="final-message" id="finalMessage">
+        祝你生日快乐，希望你天天开心！🥳
+    </div>
+
+    <!-- 音频（兼容处理） -->
+    <audio id="birthdayAudio" loop>
+        <!-- 提供多个音源保证兼容性，优先使用免费可访问的链接 -->
+        <source src="https://music.163.com/song/media/outer/url?id=1407231144.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 核心变量
+        const audio = document.getElementById('birthdayAudio');
+        const title = document.querySelector('.birthday-title');
+        const promptText = document.querySelector('.prompt-text');
+        const giftContainer = document.getElementById('giftContainer');
+        const modal = document.getElementById('modal');
+        const modalText = document.getElementById('modalText');
+        const finalMessage = document.getElementById('finalMessage');
+        
+        // 礼物配置：3个真礼物 + 6个空礼物，随机打乱
+        let gifts = [
+            { type: 'real', content: '鲜花💐' },
+            { type: 'real', content: '蛋糕🎂' },
+            { type: 'real', content: '未知的惊喜🎁' },
+            { type: 'empty', content: '空盒子' },
+            { type: 'empty', content: '空盒子' },
+            { type: 'empty', content: '空盒子' },
+            { type: 'empty', content: '空盒子' },
+            { type: 'empty', content: '空盒子' },
+            { type: 'empty', content: '空盒子' }
+        ].sort(() => Math.random() - 0.5); // 随机打乱顺序
+
+        let foundGifts = 0; // 已找到的真礼物数量
+        let openedBoxes = []; // 已打开的盒子索引
+
+        // 初始化：播放生日歌，5秒后显示挑选礼物提示
+        function init() {
+            // 兼容音频播放（需用户交互触发）
+            document.body.addEventListener('click', playAudioOnce, { once: true });
+            
+            // 5秒后显示挑选礼物提示
+            setTimeout(() => {
+                title.style.display = 'none';
+                promptText.style.display = 'block';
+                renderGiftBoxes(); // 渲染礼物盒
+            }, 5000); // 生日歌播放5秒后切换页面
+        }
+
+        // 播放音频（兼容：需要用户手动点击页面才能播放）
+        function playAudioOnce() {
+            try {
+                audio.play();
+                // 监听音频播放结束，若播放失败则手动触发后续逻辑
+                audio.addEventListener('ended', () => {
+                    title.style.display = 'none';
+                    promptText.style.display = 'block';
+                    renderGiftBoxes();
+                });
+            } catch (e) {
+                console.log('音频播放失败，自动进入下一步:', e);
+                // 播放失败时直接5秒后进入下一步
+                setTimeout(() => {
+                    title.style.display = 'none';
+                    promptText.style.display = 'block';
+                    renderGiftBoxes();
+                }, 5000);
+            }
+        }
+
+        // 渲染9个礼物盒
+        function renderGiftBoxes() {
+            giftContainer.style.display = 'grid';
+            gifts.forEach((gift, index) => {
+                const box = document.createElement('div');
+                box.className = 'gift-box';
+                box.innerHTML = '礼物盒🎁';
+                box.setAttribute('data-index', index);
+                box.addEventListener('click', () => openGiftBox(index));
+                giftContainer.appendChild(box);
+            });
+        }
+
+        // 打开礼物盒
+        function openGiftBox(index) {
+            // 跳过已打开的盒子
+            if (openedBoxes.includes(index)) return;
+            openedBoxes.push(index);
+
+            const gift = gifts[index];
+            const box = document.querySelector(`.gift-box[data-index="${index}"]`);
+            box.style.background = '#ccc'; // 标记为已打开
+
+            if (gift.type === 'real') {
+                foundGifts++;
+                modalText.textContent = `恭喜！你抽到了：${gift.content} 🎉`;
+                // 若找到所有3个真礼物，直接结束
+                if (foundGifts === 3) {
+                    setTimeout(() => {
+                        closeModal();
+                        showFinalMessage();
+                    }, 2000);
+                }
+            } else {
+                modalText.textContent = '空盒子哦～祝你生日快乐🎂，继续挑选吧！';
+            }
+
+            // 显示弹窗
+            modal.style.display = 'flex';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // 显示最终祝福
+        function showFinalMessage() {
+            giftContainer.style.display = 'none';
+            promptText.style.display = 'none';
+            finalMessage.style.display = 'block';
+            audio.pause(); // 停止播放生日歌
+        }
+
+        // 启动程序
+        init();
+    </script>
+</body>
+</html>
