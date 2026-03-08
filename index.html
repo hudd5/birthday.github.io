@@ -173,21 +173,21 @@
     </div>
 
     <!-- 音频（兼容处理） -->
-    <audio id="birthdayAudio" loop>
-        <!-- 提供多个音源保证兼容性，优先使用免费可访问的链接 -->
-        <source src="https://music.163.com/song/media/outer/url?id=1407231144.mp3" type="audio/mpeg">
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+   <audio id="birthdayAudio" loop>
+    <!-- 替换为稳定的生日快乐歌链接 -->
+    <source src="https://cdn.freesound.org/previews/518/518079_10226511-lq.mp3" type="audio/mpeg">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
 
     <script>
-        // 核心变量
-        const audio = document.getElementById('birthdayAudio');
-        const title = document.querySelector('.birthday-title');
-        const promptText = document.querySelector('.prompt-text');
-        const giftContainer = document.getElementById('giftContainer');
-        const modal = document.getElementById('modal');
-        const modalText = document.getElementById('modalText');
-        const finalMessage = document.getElementById('finalMessage');
+    // 核心变量（保留原有变量，只修改音频相关逻辑）
+    const audio = document.getElementById('birthdayAudio');
+    const title = document.querySelector('.birthday-title');
+    const promptText = document.querySelector('.prompt-text');
+    const giftContainer = document.getElementById('giftContainer');
+    const modal = document.getElementById('modal');
+    const modalText = document.getElementById('modalText');
+    const finalMessage = document.getElementById('finalMessage');
         
         // 礼物配置：3个真礼物 + 6个空礼物，随机打乱
         let gifts = [
